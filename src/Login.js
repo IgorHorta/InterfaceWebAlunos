@@ -1,20 +1,21 @@
 import React from 'react';
-import { Button, FormGroup, FormControl, FormLabel } from 'react-bootstrap';
+import { Button, FormGroup, FormControl, FormLabel, Alert } from 'react-bootstrap';
+import { userService } from '../src/services/userService';
 
 const Login = () => {
     
     const [state, setState] = React.useState({
         email: '',
-        password: ''
+        password: '',
+        loginSucess: null,
+        loginMessage: null
     });
 
     const validateForm = () => {
-        console.log(state);
         return state.email.length > 0 && state.password.length > 0;
     };
 
     const handleChange = event => {
-        console.log(event.target.value);
         setState({
             ...state,
             [event.target.id]: event.target.value
@@ -22,8 +23,12 @@ const Login = () => {
     };
 
     const handleSubmit = event => {
+        userService.login(state.email, state.password).then(mensagem => {
+          setState({...state, loginSucess: true, loginMessage: mensagem})
+        }).catch(erroMessage => {
+          setState({...state, loginSucess: false, loginMessage: erroMessage})
+        });
         event.preventDefault();
-        console.log(state);
     };
 
     return (
@@ -53,6 +58,11 @@ const Login = () => {
             >
               Login
             </Button>
+            { state.loginMessage && 
+              <Alert style={{marginTop: 20}} variant={state.loginSucess ? 'success' : 'danger'}>
+                <Alert.Heading>{state.loginMessage}</Alert.Heading>
+              </Alert>
+            }
           </form>
         </div>
       );
